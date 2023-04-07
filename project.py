@@ -91,7 +91,7 @@ def main():
     for i in range(0, len(Y_labels)):
         if Y_labels[i] == test_predict[0]:
             correct += 1
-    print(correct/len(Y_labels) * 100)
+    print("accuracy: ", correct/len(Y_labels) * 100, "%")
 
 if __name__ == "__main__":
     main()

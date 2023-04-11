@@ -49,7 +49,7 @@ def preprocessing(text):
 
 def generate_feature_matrix(list_of_tokens, word_to_index, glove_embeddings):
     number_of_reviews = len(list_of_tokens)
-    max_dim = 20000
+    max_dim = 2000
     feature_matrix = np.zeros((number_of_reviews, max_dim))
     for i, review in enumerate(list_of_tokens):
         counter = 0
@@ -62,7 +62,7 @@ def generate_feature_matrix(list_of_tokens, word_to_index, glove_embeddings):
                     counter += 1
             if counter > max_dim-51:
                 break
-    pca_model = PCA(n_components=1000)
+    pca_model = PCA(n_components=300)
     pca_model.fit(feature_matrix)
     pca_model.fit(feature_matrix)
     pca_mat = pca_model.transform(feature_matrix)
@@ -70,7 +70,7 @@ def generate_feature_matrix(list_of_tokens, word_to_index, glove_embeddings):
     return pca_mat
 
 def train(features, labels):
-    model = svm.LinearSVC(penalty="l2", loss="hinge", dual=True, C=1, random_state=486, max_iter=100000)
+    model = svm.LinearSVC(penalty="l2", loss="hinge", dual=True, C=1, random_state=486, max_iter=20000)
     model.fit(features, labels)
     return model
 
@@ -85,30 +85,31 @@ def main():
     X_labels = []     #1d list
     Y_labels = []
 
+    reviews = []
+    labels = []
+
     # preprocess glove embeddings
     word_to_index, glove_embeddings = preprocess_glove_embeddings(50)
 
     # get list of training and testing files
     training_files = glob.glob(os.path.join("training/", "*.csv"))
-    testing_files = glob.glob(os.path.join("testing/", "*.csv"))
 
     # preprocess training data
     for training_file in training_files:
         with open(training_file, newline='') as csvfile:
             reader = csv.reader(csvfile)
             for row in reader:
+                if len(row) != 3:
+                    continue
                 my_string = preprocessing(row[0])
-                X_reviews.append(my_string)
-                X_labels.append(row[2])
-
-    # preprocess testing data
-    for testing_file in testing_files:
-        with open(testing_file, newline='') as csvfile:
-            reader = csv.reader(csvfile)
-            for row in reader:
-                my_string = preprocessing(row[0])
-                Y_reviews.append(my_string)
-                Y_labels.append(row[2])
+                reviews.append(my_string)
+                labels.append(row[2])
+    
+    num_reviews = len(reviews)
+    X_reviews = reviews[:int(2*num_reviews/3)]
+    Y_reviews = reviews[-int(num_reviews/3):]
+    X_labels = labels[:int(2*num_reviews/3)]
+    Y_labels = labels[-int(num_reviews/3):]
 
     X_labels = np.array(X_labels[1:])
     Y_labels = np.array(Y_labels[1:])
@@ -122,7 +123,7 @@ def main():
     # evaluate
     correct = 0
     for i in range(0, len(Y_labels)):
-        print(test_predict[i])
+        print(Y_labels[i] + ", " + test_predict[i])
         if Y_labels[i] == test_predict[i]:
             correct += 1
     print("accuracy: ", correct/len(Y_labels) * 100, "%")

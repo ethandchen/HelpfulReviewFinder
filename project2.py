@@ -1,4 +1,4 @@
-# trains and tests on different csv files
+# trains and tests on same csv file
 
 import numpy as np
 # import pandas as pd
@@ -50,32 +50,31 @@ def main():
     X_labels = []     #1d list
     Y_labels = []
 
-    # get list of training and testing files
+    # get list of files to train and test
     training_files = glob.glob(os.path.join("training/", "*.csv"))
-    testing_files = glob.glob(os.path.join("testing/", "*.csv"))
     vocab = {}
+
+    reviews = []
+    labels = []
 
     # preprocess training data
     for training_file in training_files:
         with open(training_file, newline='') as csvfile:
             reader = csv.reader(csvfile)
             for row in reader:
+                if len(row) != 3:
+                    continue
                 my_string = preprocessing(row[0])
                 for s in my_string:
                     if s not in vocab: vocab[s] = len(vocab)
-                X_reviews.append(my_string)
-                X_labels.append(row[2])
+                reviews.append(my_string)
+                labels.append(row[2])
 
-    # preprocess testing data
-    for testing_file in testing_files:
-        with open(testing_file, newline='') as csvfile:
-            reader = csv.reader(csvfile)
-            for row in reader:
-                my_string = preprocessing(row[0])
-                for s in my_string:
-                    if s not in vocab: vocab[s] = len(vocab)
-                Y_reviews.append(my_string)
-                Y_labels.append(row[2])
+    num_reviews = len(reviews)
+    X_reviews = reviews[:int(2*num_reviews/3)]
+    Y_reviews = reviews[-int(num_reviews/3):]
+    X_labels = labels[:int(2*num_reviews/3)]
+    Y_labels = labels[-int(num_reviews/3):]
 
     X_labels = np.array(X_labels[1:])
     Y_labels = np.array(Y_labels[1:])
@@ -91,7 +90,7 @@ def main():
     # print(len(Y_labels), len(test_predict))
     correct = 0
     for i in range(0, len(Y_labels)):
-        print(test_predict[i])
+        print(Y_labels[i] + ", " + test_predict[i])
         if Y_labels[i] == test_predict[i]:
             correct += 1
     print("accuracy: ", correct/len(Y_labels) * 100, "%")

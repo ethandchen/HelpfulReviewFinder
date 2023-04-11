@@ -1,30 +1,29 @@
 # removes reviews from csv file until num helpful == num unhelpful
 
-import csv,re,string
+import csv,re,string,random
 def main():
-    training_file = "testing/amazon_dataset.csv"
-    output_file = "testing/amazon_dataset_balanced.csv"
+    training_file = "testing/yelp-reviews.csv"
+    output_file = "testing/yelp-reviews_balanced.csv"
 
-    num_helpful = 0
-    num_unhelpful = 0
-    reviews = []
+    helpful_reviews = []
+    unhelpful_reviews = []
     with open(training_file, newline='') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
-            reviews.append(row)
             if row[2] == '1':
-                num_helpful += 1
+                helpful_reviews.append(row)
             elif row[2] == '-1':
-                num_unhelpful += 1
+                unhelpful_reviews.append(row)
+    if len(helpful_reviews) > len(unhelpful_reviews):
+        helpful_reviews = helpful_reviews[:len(unhelpful_reviews)]
+    else:
+        unhelpful_reviews = unhelpful_reviews[:len(helpful_reviews)]
     
-    # count the unhelpful reviews until counter > num_helpful
-    counter = 0
+    reviews = helpful_reviews + unhelpful_reviews
+    random.shuffle(reviews)
     with open(output_file, "w") as output:
         for review in reviews:
-            if review[2] == "1" or counter < num_helpful:
-                output.write(review[0] + "," + review[1] + "," + review[2] + "\n")
-            if review[2] == "-1":
-                counter += 1
+            output.write(review[0] + "," + review[1] + "," + review[2] + "\n")
 
 
 if __name__ == "__main__":

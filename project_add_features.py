@@ -3,6 +3,7 @@ import numpy as np
 import csv,re,string
 from sklearn import svm
 import glob,os
+from matplotlib import pyplot as plt
 
 # preprocess each review
 def preprocessing(text):
@@ -33,8 +34,8 @@ def generate_feature_matrix(list_of_tokens, vocab):
 
     return feature_matrix
 
-def train(features, labels):
-    model = svm.LinearSVC(penalty="l2", loss="hinge", dual=True, C=0.0001, random_state=486, max_iter=10000)
+def train(features, labels, c=1):
+    model = svm.LinearSVC(penalty="l2", loss="hinge", dual=True, C=c, random_state=486, max_iter=10000)
     model.fit(features, labels)
     return model
 
@@ -94,6 +95,24 @@ def main():
         if Y_labels[i] == test_predict[i]:
             correct += 1
     print("accuracy: ", correct/len(Y_labels) * 100, "%")
+    c_range = [10,1,0.1, 0.01, 0.001, 0.0001]
+    accuracy = []
+    for c in c_range:
+        correct = 0
+        classifier = train(X_features, X_labels, c)
+        test_predict = predict(classifier, Y_features)
+        for i in range(0, len(Y_labels)):
+            if Y_labels[i] == test_predict[i]:
+                correct += 1
+        accuracy.append(correct/len(Y_labels) * 100)
+    print(accuracy)
+    plt.plot(c_range, accuracy)
+    plt.xscale("log")
+    plt.xlabel("Value of C hyperparameter")
+    plt.ylabel("Accuracy %")
+    plt.title("Tuning hyperparameter of Linear SVM normal embeddings")
+    plt.savefig("NORMAL.jpg")
+    plt.close()
 
 if __name__ == "__main__":
     main()

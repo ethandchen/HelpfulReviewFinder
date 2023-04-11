@@ -49,7 +49,7 @@ def preprocessing(text):
 
 def generate_feature_matrix(list_of_tokens, word_to_index, glove_embeddings):
     number_of_reviews = len(list_of_tokens)
-    max_dim = 20000
+    max_dim = 10000
     feature_matrix = np.zeros((number_of_reviews, max_dim))
     for i, review in enumerate(list_of_tokens):
         counter = 0
@@ -62,7 +62,7 @@ def generate_feature_matrix(list_of_tokens, word_to_index, glove_embeddings):
                     counter += 1
             if counter > max_dim-51:
                 break
-    pca_model = PCA(n_components=1000)
+    pca_model = PCA(n_components=600)
     pca_model.fit(feature_matrix)
     pca_model.fit(feature_matrix)
     pca_mat = pca_model.transform(feature_matrix)
@@ -70,7 +70,7 @@ def generate_feature_matrix(list_of_tokens, word_to_index, glove_embeddings):
     return pca_mat
 
 def train(features, labels):
-    model = svm.LinearSVC(penalty="l2", loss="hinge", dual=True, C=1, random_state=486, max_iter=100000)
+    model = svm.LinearSVC(penalty="l2", loss="hinge", dual=True, C=1, random_state=486, max_iter=10000)
     model.fit(features, labels)
     return model
 

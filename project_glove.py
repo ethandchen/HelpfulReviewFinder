@@ -50,7 +50,7 @@ def preprocessing(text):
 
 def generate_feature_matrix(list_of_tokens, word_to_index, glove_embeddings):
     number_of_reviews = len(list_of_tokens)
-    max_dim = 20000
+    max_dim = 10000
     feature_matrix = np.zeros((number_of_reviews, max_dim))
     for i, review in enumerate(list_of_tokens):
         counter = 0

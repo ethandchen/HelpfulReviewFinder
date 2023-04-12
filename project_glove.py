@@ -4,6 +4,7 @@ import csv,re,string
 from sklearn import svm
 from sklearn.decomposition import PCA
 import glob,os
+from matplotlib import pyplot as plt
 
 def preprocess_glove_embeddings(embedding_dim):
     word_to_index = {}    #0: padding, 1: UNKA
@@ -49,7 +50,7 @@ def preprocessing(text):
 
 def generate_feature_matrix(list_of_tokens, word_to_index, glove_embeddings):
     number_of_reviews = len(list_of_tokens)
-    max_dim = 2000
+    max_dim = 20000
     feature_matrix = np.zeros((number_of_reviews, max_dim))
     for i, review in enumerate(list_of_tokens):
         counter = 0
@@ -70,14 +71,14 @@ def generate_feature_matrix(list_of_tokens, word_to_index, glove_embeddings):
     return pca_mat
 
 def train(features, labels):
-    model = svm.LinearSVC(penalty="l2", loss="hinge", dual=True, C=1, random_state=486, max_iter=20000)
+    model = svm.LinearSVC(penalty="l2", loss="hinge", dual=True, C=0.01, random_state=486, max_iter=5000)
     model.fit(features, labels)
     return model
 
 def predict(model, test_data):
     return model.predict(test_data)
 
-def main():
+def run(file):
     # X: training data
     # Y: testing data
     X_reviews = []  #2d list
@@ -91,19 +92,14 @@ def main():
     # preprocess glove embeddings
     word_to_index, glove_embeddings = preprocess_glove_embeddings(50)
 
-    # get list of training and testing files
-    training_files = glob.glob(os.path.join("training/", "*.csv"))
-
-    # preprocess training data
-    for training_file in training_files:
-        with open(training_file, newline='') as csvfile:
-            reader = csv.reader(csvfile)
-            for row in reader:
-                if len(row) != 3:
-                    continue
-                my_string = preprocessing(row[0])
-                reviews.append(my_string)
-                labels.append(row[2])
+    with open(file, newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            if len(row) != 3:
+                continue
+            my_string = preprocessing(row[0])
+            reviews.append(my_string)
+            labels.append(row[2])
     
     num_reviews = len(reviews)
     X_reviews = reviews[:int(2*num_reviews/3)]
@@ -123,10 +119,29 @@ def main():
     # evaluate
     correct = 0
     for i in range(0, len(Y_labels)):
-        print(Y_labels[i] + ", " + test_predict[i])
         if Y_labels[i] == test_predict[i]:
             correct += 1
-    print("accuracy: ", correct/len(Y_labels) * 100, "%")
+    accuracy = correct/len(Y_labels) * 100
+    print("accuracy: ", accuracy, "%")
+    return accuracy
+    
+
+def main():
+    # get list of training and testing files
+    training_files = glob.glob(os.path.join("training/", "*.csv"))
+
+    # run on each file
+    accuracies = []
+    for training_file in training_files:
+        accuracy = run(training_file)
+        accuracies.append(accuracy)
+    file_names = ["Amazon", "Walmart", "Yelp"]
+    plt.bar(file_names, accuracies)
+    plt.xlabel("Training File")
+    plt.ylabel("Accuracy %")
+    plt.title("Performance of Linear SVM Model using Glove Embeddings")
+    plt.savefig("glove_results.jpg")
+    plt.close()
 
 if __name__ == "__main__":
     main()

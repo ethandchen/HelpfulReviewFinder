@@ -136,6 +136,7 @@ def main():
     accuracies = []
     for training_file in training_files:
         accuracy = run(training_file)
+        print(training_file + " accuracy: " + str(accuracy))
         accuracies.append(accuracy)
     file_names = ["Amazon", "Walmart", "Yelp"]
     plt.bar(file_names, accuracies)

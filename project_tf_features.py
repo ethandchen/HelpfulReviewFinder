@@ -4,6 +4,8 @@ import numpy as np
 # import pandas as pd
 import csv,re,string
 from sklearn import svm
+from sklearn.model_selection import StratifiedKFold
+from sklearn import metrics
 import glob,os
 from matplotlib import pyplot as plt
 
@@ -65,7 +67,7 @@ def run(training_file):
                 if s not in vocab: vocab[s] = len(vocab)
             reviews.append(my_string)
             labels.append(row[2])
-    
+
     num_reviews = len(reviews)
     X_reviews = reviews[:int(2*num_reviews/3)]
     Y_reviews = reviews[-int(num_reviews/3):]
@@ -91,8 +93,11 @@ def run(training_file):
     return accuracy
 
 def main():
-    # get list of files to train and test
-    training_files = glob.glob(os.path.join("training/", "*.csv"))
+    # get list of files to train and test (sorted)
+    training_files = sorted(os.listdir("balanced/"))
+    for i, f in enumerate(training_files):
+        f = os.path.join("balanced/", f)
+        training_files[i] = f
 
     accuracies = []     # [file[C_value]]
     # preprocess training data
@@ -101,6 +106,8 @@ def main():
 
     c_range = [10,1,0.1, 0.01, 0.001, 0.0001]
     files = ["Amazon", "Walmart", "Yelp"]
+
+
     for i, accuracy in enumerate(accuracies):
         plt.plot(c_range, accuracy, label = files[i])
     plt.legend()

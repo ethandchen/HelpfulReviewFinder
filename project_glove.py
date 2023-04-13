@@ -99,7 +99,7 @@ def run(file):
             my_string = preprocessing(row[0])
             reviews.append(my_string)
             labels.append(row[2])
-    
+
     num_reviews = len(reviews)
     X_reviews = reviews[:int(2*num_reviews/3)]
     Y_reviews = reviews[-int(num_reviews/3):]
@@ -123,11 +123,14 @@ def run(file):
     accuracy = correct/len(Y_labels) * 100
     print("accuracy: ", accuracy, "%")
     return accuracy
-    
+
 
 def main():
     # get list of training files
-    training_files = glob.glob(os.path.join("balanced/", "*.csv"))
+    training_files = sorted(os.listdir("balanced/"))
+    for i, f in enumerate(training_files):
+        f = os.path.join("balanced/", f)
+        training_files[i] = f
 
     # run on each file
     accuracies = []

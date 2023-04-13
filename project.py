@@ -1,7 +1,6 @@
-# trains and tests on different csv files
+# trains and tests SVM on different csv files
 
 import numpy as np
-# import pandas as pd
 import csv,re,string
 from sklearn import svm
 import glob,os

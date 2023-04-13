@@ -2,8 +2,8 @@
 
 import csv,re,string,random
 def main():
-    training_file = "testing/yelp-reviews.csv"
-    output_file = "testing/yelp-reviews_balanced.csv"
+    training_file = "training/yelp-reviews.csv"
+    output_file = "balanced/yelp-reviews_balanced.csv"
 
     helpful_reviews = []
     unhelpful_reviews = []

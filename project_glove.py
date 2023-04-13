@@ -1,5 +1,4 @@
 import numpy as np
-# import pandas as pd
 import csv,re,string
 from sklearn import svm
 from sklearn.decomposition import PCA
@@ -127,8 +126,8 @@ def run(file):
     
 
 def main():
-    # get list of training and testing files
-    training_files = glob.glob(os.path.join("training/", "*.csv"))
+    # get list of training files
+    training_files = glob.glob(os.path.join("balanced/", "*.csv"))
 
     # run on each file
     accuracies = []
